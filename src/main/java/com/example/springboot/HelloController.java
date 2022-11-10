@@ -16,6 +16,9 @@ public class HelloController {
 	@Value("${helloworld.message:HelloWorldNotSet}")
 	private String helloWorld;
 
+	@Value("${mypassword}")
+	private String password;
+
 	@Autowired
     private DiscoveryClient discoveryClient;
 
@@ -41,6 +44,11 @@ public class HelloController {
 	@GetMapping("/hello")
 	public String helloWorld() {
 		return "Hello message from config service > "+helloWorld;
+	}
+
+	@GetMapping("/password")
+	public String password() {
+		return password;
 	}
 
 }
