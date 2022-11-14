@@ -19,6 +19,7 @@ public class HelloController {
 	private static int helloRequestCount;
 	private static int passwordRequestCount;
 	private static int yodaQuoteRequestCount;
+	private static int chuckQuoteRequestCount;
 
 	@Value("${helloworld.message:HelloWorldNotSet}")
 	private String hello;
@@ -41,7 +42,7 @@ public class HelloController {
 
 			String serviceURI = discoveryClient.getInstances("appapi").stream().findFirst().get().getUri().toString();
 			
-			log.info(">>>>>> Making request to 'appapi' : {} ",serviceURI);		
+			log.info(">>>>>> Making request to 'appapi - Yoda' : {} ",serviceURI);		
 
 			RestTemplate restTemplate = new RestTemplate();
 			ResponseEntity<String> response = restTemplate.getForEntity(serviceURI , String.class);
@@ -56,6 +57,36 @@ public class HelloController {
 		}
 		return "yoda";
 	}
+
+	@GetMapping("/chuck")
+	public String chuck(Model model) {
+		String message = "Whoopsie daisies.... couldn't connect to the API server";
+		try{
+			model.addAttribute("message", message);
+
+			log.info("--- Finding service discovery URI");
+			discoveryClient.getServices().stream().forEach(System.err::println);
+			log.info("--- Found services :  "+(!discoveryClient.getInstances("appapi").isEmpty()));
+
+			String serviceURI = discoveryClient.getInstances("appapi2").stream().findFirst().get().getUri().toString();
+			
+			log.info(">>>>>> Making request to 'appapi2 - Chuck' : {} ",serviceURI);		
+
+			RestTemplate restTemplate = new RestTemplate();
+			ResponseEntity<String> response = restTemplate.getForEntity(serviceURI , String.class);
+
+			log.info("<<<<  Response '{}' ",response);		
+
+			message = response.getBody();
+			model.addAttribute("message", "["+(++chuckQuoteRequestCount)+"] "+message);
+
+		} catch (Throwable t){
+			log.error("Unable to get make request to the API",t);
+		}
+		return "chuck";
+	}
+
+
 
 	@GetMapping("/hello")
 	public String hello(Model model) {
